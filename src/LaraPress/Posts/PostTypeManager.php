@@ -42,7 +42,7 @@ class PostTypeManager implements PostTypeManagerContract {
 
     public function get($postType)
     {
-        return isset($postType) ? $this->postTypes[$postType] : null;
+        return isset($this->postTypes[$postType]) ? $this->postTypes[$postType] : null;
     }
 
     public function all()
