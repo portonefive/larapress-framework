@@ -3,6 +3,7 @@
 use App\Post;
 use Illuminate\Routing\ControllerDispatcher as BaseControllerDispatcher;
 use LaraPress\Admin\AdminPageController;
+use LaraPress\Posts\Model;
 use LaraPress\Posts\Query;
 
 class ControllerDispatcher extends BaseControllerDispatcher {
@@ -24,8 +25,7 @@ class ControllerDispatcher extends BaseControllerDispatcher {
         {
             if (get_post() !== null)
             {
-                $post = Post::find(get_post()->ID);
-                if ($post)
+                if ($post = Model::resolveWordpressPostToModel(get_post()))
                 {
                     $controller->setPost($post);
                 }
