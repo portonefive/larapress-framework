@@ -1,5 +1,6 @@
 <?php namespace LaraPress\Posts;
 
+use LaraPress\Actions\Dispatcher;
 use LaraPress\Contracts\Posts\CustomPostType;
 use LaraPress\Contracts\Posts\PostTypeManager as PostTypeManagerContract;
 
@@ -7,6 +8,16 @@ class PostTypeManager implements PostTypeManagerContract {
 
     /** @var Model[] */
     protected $postTypes = [];
+
+    /**
+     * @var Dispatcher
+     */
+    protected $actions;
+
+    public function __construct(Dispatcher $actions)
+    {
+        $this->actions = $actions;
+    }
 
     public function register($model)
     {
@@ -20,7 +31,13 @@ class PostTypeManager implements PostTypeManagerContract {
             $model = new $model;
         }
 
-        $this->makeCustomPostType($model);
+        $this->actions->listen(
+            'init',
+            function () use ($model)
+            {
+                $this->makeCustomPostType($model);
+            }
+        );
     }
 
     public function get($postType)
@@ -39,8 +56,14 @@ class PostTypeManager implements PostTypeManagerContract {
 
         if ($model instanceof CustomPostType)
         {
-            $singular = property_exists($model, 'singular') ? $model->singular : $postTypeSlug;
-            $plural   = property_exists($model, 'plural') ? $model->plural : str_plural($postTypeSlug);
+            $singular =
+                property_exists($model, 'singular') ? $model->singular : str_replace(['-', '_'], ' ', $postTypeSlug);
+
+            $plural = property_exists($model, 'plural')
+                ? $model->plural
+                : str_plural(
+                    str_replace(['-', '_'], ' ', $postTypeSlug)
+                );
 
             $postTypeData = $model->customPostTypeData();
 

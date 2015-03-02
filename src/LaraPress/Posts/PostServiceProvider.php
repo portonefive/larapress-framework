@@ -33,7 +33,7 @@ class PostServiceProvider extends ServiceProvider {
         $this->app['posts.types'] = $this->app->share(
             function ($app)
             {
-                return new PostTypeManager($app);
+                return new PostTypeManager($app['actions']);
             }
         );
     }
