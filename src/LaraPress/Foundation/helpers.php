@@ -55,3 +55,11 @@ if ( ! function_exists('larapress_add_filters'))
         }
     }
 }
+
+if ( ! function_exists('larapress_assets'))
+{
+    function larapress_assets($path = '')
+    {
+        return get_template_directory_uri() . ($path ? '/' . $path : $path);
+    }
+}
