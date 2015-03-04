@@ -34,6 +34,11 @@ class ControllerDispatcher extends BaseControllerDispatcher {
             $controller->setQuery($this->container['query']);
         }
 
+        if (method_exists($controller, 'boot'))
+        {
+            $this->container->call([$controller, 'boot']);
+        }
+
         return $controller;
     }
 }
