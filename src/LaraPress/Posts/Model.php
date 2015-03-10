@@ -23,6 +23,19 @@ class Model extends Eloquent {
         self::addGlobalScope(new PublishedScope());
     }
 
+    public static function resolveWordpressPostToModel(\WP_Post $post)
+    {
+        /** @var PostTypeManager $postTypes */
+        $postTypes = app('posts.types');
+
+        if ($class = $postTypes->get($post->post_type))
+        {
+            return with(new $class)->newInstance($post->to_array());
+        }
+
+        return false;
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -49,22 +62,20 @@ class Model extends Eloquent {
         return $matchingMeta->count() == 1 ? $matchingMeta->first()->getValue() : null;
     }
 
-    public static function resolveWordpressPostToModel(\WP_Post $post)
+    /**
+     * @param $metaKey
+     * @param $metaValue
+     */
+    public function setMeta($metaKey, $metaValue)
     {
-        /** @var PostTypeManager $postTypes */
-        $postTypes = app('posts.types');
+        update_post_meta($this->ID, $metaKey, $metaValue);
 
-        if ($class = $postTypes->get($post->post_type))
-        {
-            return with (new $class)->newInstance($post->to_array());
-        }
-
-        return false;
+        $this->load('meta');
     }
 
     public function toWordpressPost()
     {
-        $postData = (object) $this->toArray();
+        $postData = (object)$this->toArray();
 
         return new \WP_Post($postData);
     }

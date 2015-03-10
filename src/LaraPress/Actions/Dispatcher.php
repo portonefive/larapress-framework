@@ -13,9 +13,9 @@ class Dispatcher extends EventsDispatcher {
      * @param  mixed        $listener
      * @param  int          $priority
      *
-     * @return void
+     * @param int           $acceptedArgs
      */
-    public function listen($events, $listener, $priority = 0)
+    public function listen($events, $listener, $priority = 0, $acceptedArgs = 1)
     {
         foreach ((array)$events as $event)
         {
@@ -32,7 +32,9 @@ class Dispatcher extends EventsDispatcher {
                     function () use ($event)
                     {
                         return $this->fire($event, func_get_args());
-                    }
+                    },
+                    $priority,
+                    $acceptedArgs
                 );
             }
         }

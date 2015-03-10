@@ -11,11 +11,11 @@ class MetaBoxServiceProvider extends ServiceProvider {
      */
     public function register()
     {
-        $this->app['metabox'] = $this->app->share(
-            function ($app)
-            {
-                return new MetaBoxManager();
-            }
-        );
+        $this->app->instance('metabox', $metaBoxManager = new Manager($this->app, $this->app['actions']));
+    }
+
+    public function provides()
+    {
+        return ['metabox'];
     }
 }

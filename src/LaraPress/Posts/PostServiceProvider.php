@@ -1,7 +1,6 @@
 <?php namespace LaraPress\Posts;
 
 use Illuminate\Support\ServiceProvider;
-use LaraPress\Posts\Loop;
 
 class PostServiceProvider extends ServiceProvider {
 
@@ -12,10 +11,30 @@ class PostServiceProvider extends ServiceProvider {
      */
     public function register()
     {
+        $this->app['actions']->listen('wp', function()
+        {
+            if (get_post() !== null && $post = Model::resolveWordpressPostToModel(get_post()))
+            {
+                $this->app->instance('post', $post);
+            }
+        });
+
         $this->registerLoopAndQuery();
         $this->registerPostManager();
         $this->registerPostTypeManager();
         $this->registerPostTypes();
+    }
+
+    protected function registerLoopAndQuery()
+    {
+        $this->app['actions']->listen(
+            'wp',
+            function ()
+            {
+                $this->app->instance('query', $query = Query::newInstanceFromWordpressQuery($GLOBALS['wp_query']));
+                $this->app->instance('loop', new Loop($query->get_posts()));
+            }
+        );
     }
 
     protected function registerPostManager()
@@ -49,17 +68,5 @@ class PostServiceProvider extends ServiceProvider {
     public function provides()
     {
         return ['posts', 'posts.types', 'query', 'loop'];
-    }
-
-    protected function registerLoopAndQuery()
-    {
-        $this->app['actions']->listen(
-            'wp',
-            function ()
-            {
-                $this->app->instance('query', $query = Query::newInstanceFromWordpressQuery($GLOBALS['wp_query']));
-                $this->app->instance('loop', new Loop($query->get_posts()));
-            }
-        );
     }
 }

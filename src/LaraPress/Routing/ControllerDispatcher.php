@@ -23,14 +23,7 @@ class ControllerDispatcher extends BaseControllerDispatcher {
 
         if ( ! $controller instanceof AdminPageController)
         {
-            if (get_post() !== null)
-            {
-                if ($post = Model::resolveWordpressPostToModel(get_post()))
-                {
-                    $controller->setPost($post);
-                }
-            }
-
+            $controller->setPost($this->container['post']);
             $controller->setQuery($this->container['query']);
         }
 
