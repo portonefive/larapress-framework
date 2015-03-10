@@ -7,6 +7,8 @@ class Model extends Eloquent {
 
     protected $table = 'wp_posts';
 
+    protected $primaryKey = 'ID';
+
     protected $with = ['meta'];
 
     protected $dates = ['post_modified', 'post_modified_gmt', 'post_date', 'post_date_gmt'];
@@ -42,6 +44,19 @@ class Model extends Eloquent {
     public function meta()
     {
         return $this->hasMany('LaraPress\Posts\Meta', 'post_id', 'ID');
+    }
+
+    public function getObjectIdAttribute()
+    {
+        return $this->ID;
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function terms()
+    {
+        return $this->belongsToMany('LaraPress\Posts\Term', 'wp_term_relationships', 'object_id', 'term_taxonomy_id');
     }
 
     /**

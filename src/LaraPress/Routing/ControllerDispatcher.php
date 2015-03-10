@@ -23,7 +23,11 @@ class ControllerDispatcher extends BaseControllerDispatcher {
 
         if ( ! $controller instanceof AdminPageController)
         {
-            $controller->setPost($this->container['post']);
+            if (isset($this->container['post']))
+            {
+                $controller->setPost($this->container['post']);
+            }
+
             $controller->setQuery($this->container['query']);
         }
 
