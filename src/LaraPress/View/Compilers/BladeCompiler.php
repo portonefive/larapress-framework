@@ -55,8 +55,21 @@ class BladeCompiler extends BaseBladeCompiler
         return '<?php endwhile; endif; wp_reset_postdata(); ?>';
     }
 
+
     /**
-     * Compile the query statement into valid PHP.
+     * Compile set statement into valid PHP.
+     *
+     * @param string $expression
+     *
+     * @return string
+     */
+    protected function compileSet($expression)
+    {
+        return '<?php ' . $expression . '?>';
+    }
+
+    /**
+     * Compile the sidebar statement into valid PHP.
      *
      * @param string $expression
      *
