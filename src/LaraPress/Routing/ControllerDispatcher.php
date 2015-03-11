@@ -23,7 +23,7 @@ class ControllerDispatcher extends BaseControllerDispatcher {
 
         if ( ! $controller instanceof AdminPageController)
         {
-            if (isset($this->container['post']))
+            if ($this->container->isShared('post'))
             {
                 $controller->setPost($this->container['post']);
             }
