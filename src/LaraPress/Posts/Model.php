@@ -61,6 +61,54 @@ class Model extends Eloquent {
 
     /**
      * @param $metaKey
+     * @param $metaValue
+     */
+    public function setMeta($metaKey, $metaValue)
+    {
+        update_post_meta($this->ID, $metaKey, $metaValue);
+
+        $this->load('meta');
+    }
+
+    public function toWordpressPost()
+    {
+        $postData = (object) $this->toArray();
+
+        return new \WP_Post($postData);
+    }
+
+    public function getField($fieldId, $format = true)
+    {
+        if ( ! function_exists('acf_is_field_key'))
+        {
+            throw new \Exception('Advanced Custom Fields must be installed to use ' . __METHOD__);
+        }
+
+        $value   = maybe_unserialize($this->getMeta($fieldId));
+        $fieldId = $this->getMeta('_' . $fieldId);
+
+        if ( ! acf_is_field_key($fieldId))
+        {
+            return null;
+        }
+
+        $field = get_field_object($fieldId, $this->ID, false, false);
+
+        $value = apply_filters("acf/load_value", $value, $this->ID, $field);
+        $value = apply_filters("acf/load_value/type={$field['type']}", $value, $this->ID, $field);
+        $value = apply_filters("acf/load_value/name={$field['name']}", $value, $this->ID, $field);
+        $value = apply_filters("acf/load_value/key={$field['key']}", $value, $this->ID, $field);
+
+        if ($format)
+        {
+            $value = acf_format_value($value, $this->ID, $field);
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param $metaKey
      *
      * @return mixed
      */
@@ -75,23 +123,5 @@ class Model extends Eloquent {
         );
 
         return $matchingMeta->count() == 1 ? $matchingMeta->first()->getValue() : null;
-    }
-
-    /**
-     * @param $metaKey
-     * @param $metaValue
-     */
-    public function setMeta($metaKey, $metaValue)
-    {
-        update_post_meta($this->ID, $metaKey, $metaValue);
-
-        $this->load('meta');
-    }
-
-    public function toWordpressPost()
-    {
-        $postData = (object)$this->toArray();
-
-        return new \WP_Post($postData);
     }
 }

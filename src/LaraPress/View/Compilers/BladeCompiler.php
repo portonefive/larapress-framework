@@ -79,4 +79,28 @@ class BladeCompiler extends BaseBladeCompiler
     {
         return '<?php dynamic_sidebar(' . $expression . '); ?>';
     }
+
+    /**
+     * Compile the JS enqueue statement into valid PHP.
+     *
+     * @param string $expression
+     *
+     * @return string
+     */
+    protected function compileJs($expression)
+    {
+        return '<?php wp_enqueue_script' . $expression . '; ?>';
+    }
+
+    /**
+     * Compile the JS enqueue statement into valid PHP.
+     *
+     * @param string $expression
+     *
+     * @return string
+     */
+    protected function compileCss($expression)
+    {
+        return '<?php wp_enqueue_style' . $expression . '; ?>';
+    }
 }

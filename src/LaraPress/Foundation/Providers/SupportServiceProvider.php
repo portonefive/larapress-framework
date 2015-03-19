@@ -11,6 +11,19 @@ class SupportServiceProvider extends ServiceProvider {
      */
     public function register()
     {
+        $this->app['filters']->listen(
+            'site_url',
+            function ($url)
+            {
+                if (strpos($url, 'wp-') === false)
+                {
+                    return str_replace(WP_SITEURL, WP_HOME, $url);
+                }
+
+                return $url;
+            }
+        );
+
         foreach (config('supports') as $feature => $value)
         {
             if ($value === 'automatic-feed-links')
