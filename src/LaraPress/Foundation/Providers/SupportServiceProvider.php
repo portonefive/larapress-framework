@@ -11,6 +11,7 @@ class SupportServiceProvider extends ServiceProvider {
      */
     public function register()
     {
+        /*
         $this->app['filters']->listen(
             'site_url',
             function ($url)
@@ -23,6 +24,7 @@ class SupportServiceProvider extends ServiceProvider {
                 return $url;
             }
         );
+        */
 
         foreach (config('supports') as $feature => $value)
         {
