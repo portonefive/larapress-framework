@@ -103,4 +103,24 @@ class BladeCompiler extends BaseBladeCompiler
     {
         return '<?php wp_enqueue_style' . $expression . '; ?>';
     }
+
+    /**
+     * Compile the wp_footer statement into valid PHP.
+     *
+     * @return string
+     */
+    protected function compileWpFooter()
+    {
+        return '<?php wp_footer(); ?>';
+    }
+
+    /**
+     * Compile the wp_head statement into valid PHP.
+     *
+     * @return string
+     */
+    protected function compileWpHead()
+    {
+        return '<?php wp_head(); ?>';
+    }
 }
