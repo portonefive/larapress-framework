@@ -3,11 +3,11 @@
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Request;
-use Illuminate\Routing\RouteCollection;
 use Illuminate\Routing\Router as RouterBase;
 use LaraPress\Actions\Dispatcher as ActionsDispatcher;
 
-class Router extends RouterBase {
+class Router extends RouterBase
+{
 
     /**
      * @var Dispatcher
@@ -20,13 +20,13 @@ class Router extends RouterBase {
      * @param \Illuminate\Contracts\Events\Dispatcher $events
      * @param ActionsDispatcher                       $actions
      * @param \Illuminate\Container\Container         $container
-     *
      */
     public function __construct(Dispatcher $events, ActionsDispatcher $actions, Container $container = null)
     {
         parent::__construct($events, $container);
 
         $this->actions = $actions;
+        $this->routes  = new RouteCollection;
     }
 
     /**
@@ -59,14 +59,25 @@ class Router extends RouterBase {
         return parent::addRoute($methods, $uri, $action);
     }
 
+    public function arrest($postType, $action)
+    {
+        $postType = '__catch_' . str_replace('\\', '.', $postType);
+
+        $route = $this->createRoute('GET', $postType, $action);
+        $route->setAction($route->getAction() + ['as' => $postType]);
+
+        $this->routes->add($route);
+
+        return $route;
+    }
+
     public function admin($uri, $action)
     {
         $route = $this->addRoute('admin', $uri, $action);
 
         $this->actions->listen(
             'admin_menu',
-            function () use ($uri, $route)
-            {
+            function () use ($uri, $route) {
                 $this->addAdminMenuPage($uri, $route);
             }
         );
@@ -85,28 +96,24 @@ class Router extends RouterBase {
         $request = Request::capture();
         $route->bind($request);
 
-        $response = function () use ($route, $request)
-        {
+        $response = function () use ($route, $request) {
             $response = $this->runRouteWithinStack($route, $request);
             $response->send();
         };
 
-        $slug = array_pop($uri);
-        $title = ucwords(str_replace(['-', '_'], ' ', $slug));
+        $slug        = array_pop($uri);
+        $title       = ucwords(str_replace(['-', '_'], ' ', $slug));
         $routeAction = $route->getAction();
 
         $capability = isset($routeAction['capability']) ? $routeAction['capability'] : 'manage_options';
-        $pageTitle = isset($routeAction['pageTitle']) ? $routeAction['pageTitle'] : $title;
-        $menuTitle = isset($routeAction['menuTitle']) ? $routeAction['menuTitle'] : $title;
+        $pageTitle  = isset($routeAction['pageTitle']) ? $routeAction['pageTitle'] : $title;
+        $menuTitle  = isset($routeAction['menuTitle']) ? $routeAction['menuTitle'] : $title;
 
         remove_menu_page($slug);
 
-        if (count($uri) == 0)
-        {
+        if (count($uri) == 0) {
             add_menu_page($pageTitle, $menuTitle, $capability, $slug, $response);
-        }
-        else
-        {
+        } else {
             add_submenu_page(array_pop($uri), $pageTitle, $menuTitle, $capability, $slug, $response);
         }
     }
